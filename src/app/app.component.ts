@@ -1,30 +1,36 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { interval, Observable, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   title = 'countdown';
 
   public days = 0;
   public hours = 0;
   public minutes = 0;
   public seconds = 0;
+  private _source!: Observable<number>;
+
 
   constructor() { }
 
   ngOnInit(): void {
     this.displayTime()
   }
+  ngOnDestroy(): void {
+    this.displayTime();
+  }
 
   countDown(): void {
-    const goalDate = "25 december, 2021";
+    const date = "25 december, 2021";
     const now = new Date().getTime();
-    const xmas = new Date(goalDate).getTime();
+    const goalDate = new Date(date).getTime();
 
-    const differenceBetweenNowAndGoalDate = xmas - now;
+    const differenceBetweenNowAndGoalDate = goalDate - now;
 
     const days = Math.floor(differenceBetweenNowAndGoalDate / (1000 * 60 * 60 * 24))
     const hours = Math.floor((differenceBetweenNowAndGoalDate % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
@@ -43,8 +49,7 @@ export class AppComponent implements OnInit {
   }
 
   displayTime(): void {
-    setInterval(() => {
-      this.countDown()
-    }, 1000)
+    this._source = interval(1000);
+    this._source.subscribe(() => this.countDown());
   }
 }
